@@ -1,13 +1,14 @@
 import java.util.*;
 import java.util.regex.Pattern;
 
-class nammaBusYatra{
-    private static List<Bus> busList=new ArrayList<>();
+class nammaBusYatra {
+    private static List<Bus> busList = new ArrayList<>();
     Scanner scan;
-    nammaBusYatra(Scanner scan){
-        this.scan=scan;
+
+    nammaBusYatra(Scanner scan) {
+        this.scan = scan;
     }
-    
+
     // To create a bus and add to the avialbale bus
     public void createBus(User user) {
         // For user authorization
@@ -15,12 +16,12 @@ class nammaBusYatra{
             System.out.println("\n[DENIED] Access Restricted: Only admins can register new buses.");
             return;
         }
-        // This calls your Bus constructor which already handles its own internal prompts
+        // This calls your Bus constructor which already handles its own internal
+        // prompts
         Bus newBus = new Bus(scan);
         busList.add(newBus);
         System.out.println("[SYSTEM] Bus added to NammaYatra fleet successfully.");
     }
-
 
     // To display the buses available to travel.
     public void showBuses() {
@@ -37,21 +38,23 @@ class nammaBusYatra{
     }
 
     // the method for booking ticket
-     public void startBookingFlow() {
+    public void startBookingFlow() {
         if (busList.isEmpty()) {
             System.out.println("\n[ERROR] Cannot proceed. No buses available for booking.");
             return;
         }
 
         showBuses();
+       
+        System.out.println("To go back to MENU Enter 0.")
         System.out.print("Select the Bus Number you wish to book (e.g., 1): ");
-        
+       
         try {
             int choice = scan.nextInt();
             scan.nextLine(); // Clear buffer
             int index = choice - 1;
-
-            if (index >= 0 && index < busList.size()) {
+            if(index==-1)return;
+            else if (index >= 0 && index < busList.size()) {
                 Bus selectedBus = busList.get(index);
                 processBooking(selectedBus);
             } else {
@@ -63,24 +66,32 @@ class nammaBusYatra{
         }
     }
 
-
-
     private void processBooking(Bus bus) {
         System.out.println("\n--- Booking Details for: " + bus.getName() + " ---");
         bus.knowAvailableSeats();
 
-        // Check if seats are even available before asking for money
-        boolean success = bus.bookSeat(); 
+        System.out.print("How many seats would you like to book? ");
+        try {
+            int count = scan.nextInt();
+            scan.nextLine(); // Clear buffer
 
-        if (success) {
-            System.out.println("[TICKET] Reservation confirmed for " + bus.getName());
-        } else {
-            System.out.println("[FAILED] Booking could not be completed.");
+            // Basic check before starting
+            if (count <= 0) {
+                System.out.println("[ERROR] Invalid number of seats.");
+                return;
+            }
+
+            if (bus.bookSeat(count)) {
+                System.out.println("\n[SUMMARY] Successfully booked " + count + " seat(s) on " + bus.getName());
+            }
+
+        } catch (InputMismatchException e) {
+            System.out.println("[ERROR] Please enter a numerical value for seat count.");
+            scan.nextLine();
         }
     }
 
-
-     public static List<Bus> getBusList() {
+    public static List<Bus> getBusList() {
         return busList;
     }
 
@@ -105,9 +116,10 @@ class Bus {
         System.out.println("No. of Reserved Seats: " + occupiedSeats);
     }
 
-    public String getName(){
+    public String getName() {
         return this.name;
     }
+
     Bus(Scanner scan) {
         this.scan = scan;
         System.out.println("\n===== Initializing New Bus Registration =====");
@@ -186,57 +198,58 @@ class Bus {
         System.out.println("==============================================\n");
     }
 
-    boolean bookSeat() {
-    // 1. Check availability immediately to save user time
-    if (vacantSeats <= 0) {
-        System.out.println("\n[ALERT] All seats are occupied for this route.");
-        return false;
-    }
-
-    // 2. Process Payment
-    if (!payment()) {
-        System.out.println("[FAILED] Booking incomplete. Payment was not successful.");
-        return false;
-    }
-
-    // 3. Update State
-    occupiedSeats++;
-    vacantSeats--;
-    
-    System.out.println("\n[SUCCESS] Seat reserved successfully! -_-:)");
-    System.out.println("Remaining Vacant Seats: " + vacantSeats);
-    return true;
-}
-
-boolean payment() {
-    System.out.println("\n--- Secure Payment Gateway ---");
-    System.out.println("Ticket Fare: " + this.price + " Rupees.");
-    System.out.print("Enter amount to pay: ");
-
-    try {
-        int amountPaid = scan.nextInt();
-        scan.nextLine(); // Critical: Clear buffer for next inputs
-
-        if (amountPaid == this.price) {
-            System.out.println("[PAID] Exact amount received. Thank you!");
-            return true;
-        } 
-        else if (amountPaid > this.price) {
-            int refund = amountPaid - this.price;
-            System.out.println("[PAID] Overpayment detected.");
-            System.out.println("Refund of " + refund + " Rupees will be credited to your account within 3 days.");
-            return true;
-        } 
-        else {
-            System.out.println("[DENIED] Insufficient amount. You still owe " + (this.price - amountPaid) + " Rupees.");
+    boolean bookSeat(int count) {
+        int seatPrice = this.price;
+        int totalCost = seatPrice * count;
+        System.out.println("The total amount to be paid is " + totalCost + " to book " + count + " seats.");
+        // 1. Check availability immediately to save user time
+        if (vacantSeats < count) {
+            System.out.println("\n[ALERT] All seats are occupied for this route.");
             return false;
         }
-    } catch (InputMismatchException e) {
-        System.out.println("[ERROR] Invalid input! Please enter a numerical value.");
-        scan.nextLine(); // Clear the bad input
-        return false;
+
+        // 2. Process Payment
+        if (!payment(totalCost)) {
+            System.out.println("[FAILED] Booking incomplete. Payment was not successful.");
+            return false;
+        }
+
+        // 3. Update State
+        occupiedSeats += count;
+        vacantSeats -= count;
+
+        System.out.println("\n[SUCCESS] Seat reserved successfully! -_-:)");
+        System.out.println("Remaining Vacant Seats: " + vacantSeats);
+        return true;
     }
-}
+
+    boolean payment(int price) {
+        System.out.println("\n--- Secure Payment Gateway ---");
+        System.out.println("Ticket Fare: " + price + " Rupees.");
+        System.out.print("Enter amount to pay: ");
+
+        try {
+            int amountPaid = scan.nextInt();
+            scan.nextLine(); // Critical: Clear buffer for next inputs
+
+            if (amountPaid == price) {
+                System.out.println("[PAID] Exact amount received. Thank you!");
+                return true;
+            } else if (amountPaid > price) {
+                int refund = amountPaid - price;
+                System.out.println("[PAID] Overpayment detected.");
+                System.out.println("Refund of " + refund + " Rupees will be credited to your account within 3 days.");
+                return true;
+            } else {
+                System.out.println("[DENIED] Insufficient amount. You still owe " + (price - amountPaid) + " Rupees.");
+                return false;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("[ERROR] Invalid input! Please enter a numerical value.");
+            scan.nextLine(); // Clear the bad input
+            return false;
+        }
+    }
 
 }
 
@@ -313,15 +326,14 @@ class admin {
 
 }
 
-
 public class TicketBooking {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-        
+
         // 1. Setup the System and User
         nammaBusYatra system = new nammaBusYatra(scan);
-        User currentUser = new User(scan); 
-        
+        User currentUser = new User(scan);
+
         boolean exit = false;
         while (!exit) {
             System.out.println("\n========= NAMMA YATRA MENU =========");
@@ -329,7 +341,7 @@ public class TicketBooking {
             System.out.println("2. [ADMIN] Register a New Bus");
             System.out.println("3. Exit System");
             System.out.print("Please select an option: ");
-            
+
             try {
                 int choice = scan.nextInt();
                 scan.nextLine(); // Clear buffer
