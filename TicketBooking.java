@@ -34,7 +34,7 @@ class nammaBusYatra {
         for (int i = 0; i < busList.size(); i++) {
             System.out.println((i + 1) + ". " + busList.get(i).getName());
         }
-        System.out.println("----------------------------------------------");
+        System.out.println("-----------------------------------------------");
     }
 
     // the method for booking ticket
