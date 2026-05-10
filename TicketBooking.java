@@ -307,7 +307,7 @@ class User {
 
         System.out.println("\n[SUCCESS] Welcome, " + this.NAME + "!");
         System.out.println("Account created successfully as a " + this.ROLE + ".");
-        System.out.println("---------------------------\n");
+        System.out.println("----------------------------\n");
         System.out.println("Now please Log In again with your credentials ");
     }
 
