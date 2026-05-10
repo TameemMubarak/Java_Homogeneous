@@ -1,8 +1,10 @@
 import java.util.*;
 import java.util.regex.Pattern;
 
+
 class Bus {
 
+    private String name;
     private String vehicleNumber;
     private int engineCC;
     private int price;
@@ -22,6 +24,19 @@ class Bus {
     Bus(Scanner scan) {
         this.scan = scan;
         System.out.println("\n===== Initializing New Bus Registration =====");
+
+        while (true) {
+            System.out.println(
+                    "->please enter the bus name\n It should have format boradingpoint_to_destinantionport ==> Ex: vmplToRct.");
+            String name = scan.nextLine().trim();
+
+            if (Pattern.matches("^[a-zA-Z]+(To|_to_)[a-zA-Z]+$", name)) {
+                this.name = name;
+                break;
+            }
+
+            System.out.println("[ERROR] Invalid format! Use letters followed by 'To' or '_to_' and more letters.");
+        }
 
         while (true) {
             System.out.println("-> Please enter the Vehicle Number (Format: AA 11 1111):");
@@ -78,11 +93,12 @@ class Bus {
                 scan.next();
             }
         }
-        
-        scan.nextLine(); 
+
+        scan.nextLine();
         System.out.println("\n[SUCCESS] Bus " + vehicleNumber + " is now ready for service!");
         System.out.println("==============================================\n");
     }
+
     boolean bookSeat() {
         if (occupiedSeats == seats) {
             System.out.println("No seats are left ....");
@@ -120,6 +136,16 @@ class Bus {
         return false;
 
     }
+
+    static void createBus(User user,Scanner scan) {
+        if (!user.getRole().trim().equalsIgnoreCase("admin")) {
+            System.out.println("Acess denied..!");
+            System.out.println("Only admin have acess");
+            return;
+        }
+        Bus newBus=new Bus(scan);
+
+    }
 }
 
 class User {
@@ -132,47 +158,54 @@ class User {
     public String getRole() {
         return this.ROLE;
     }
-User(Scanner scan) {
-    String tempName = "", tempRole = "", tempPwd = "", tempEmail = "";
-    long tempNumber = 0;
 
-    while (true) {
-        try {
-            System.out.println("--- User Registration ---");
+    User(Scanner scan) {
+        String tempName = "", tempRole = "", tempPwd = "", tempEmail = "";
+        long tempNumber = 0;
 
-            System.out.print("Enter Full Name: ");
-            scan.nextLine(); 
-            tempName = scan.nextLine();
+        while (true) {
+            try {
+                System.out.println("--- User Registration ---");
 
-            System.out.print("Enter Role (Admin/Passenger): ");
-            tempRole = scan.next();
-            if (!(tempRole.equalsIgnoreCase("Admin") || tempRole.equalsIgnoreCase("Passenger"))) {
-                throw new Exception("Invalid Role! You must enter 'Admin' or 'Passenger'.");
+                System.out.print("Enter Full Name: ");
+
+                tempName = scan.nextLine();
+
+                System.out.print("Enter Role (Admin/Passenger): ");
+                tempRole = scan.next();
+                if (!(tempRole.equalsIgnoreCase("Admin") || tempRole.equalsIgnoreCase("Passenger"))) {
+                    throw new Exception("Invalid Role! You must enter 'Admin' or 'Passenger'.");
+                }
+
+                System.out.print("Create Password: ");
+                tempPwd = scan.next();
+
+                System.out.print("Enter Email Address: ");
+                tempEmail = scan.next();
+
+                System.out.print("Enter Mobile Number: ");
+                tempNumber = scan.nextLong();
+
+                break;
+            } catch (Exception e) {
+                System.out.println("[ERROR] " + e.getMessage());
+                scan.nextLine();
+                System.out.println("Please restart the registration process.\n");
             }
-
-            System.out.print("Create Password: ");
-            tempPwd = scan.next();
-
-            System.out.print("Enter Email Address: ");
-            tempEmail = scan.next();
-
-            System.out.print("Enter Mobile Number: ");
-            tempNumber = scan.nextLong();
-            
-            break; 
-        } catch (Exception e) {
-            System.out.println("[ERROR] " + e.getMessage());
-            scan.nextLine(); 
-            System.out.println("Please restart the registration process.\n");
         }
+
+        this.NAME = tempName;
+        this.ROLE = tempRole;
+        this.pwd = tempPwd;
+        this.EMAIL = tempEmail;
+        this.NUMBER = tempNumber;
+
+        System.out.println("\n[SUCCESS] Welcome, " + this.NAME + "!");
+        System.out.println("Account created successfully as a " + this.ROLE + ".");
+        System.out.println("---------------------------\n");
+        System.out.println("Now please Log In again with your credentials ");
     }
 
-    this.NAME = tempName;
-    this.ROLE = tempRole;
-    this.pwd = tempPwd;
-    this.EMAIL = tempEmail;
-    this.NUMBER = tempNumber;
-}
 }
 
 class admin {
@@ -186,24 +219,13 @@ class admin {
         }
     }
 
-    void createBus(User user) {
-        if (!user.getRole().trim().equalsIgnoreCase("admin")) {
-            System.out.println("Acess denied..!");
-            System.out.println("Only admin have acess");
-            return;
-        }
-        String busName = scan.nextLine();
-        int busNumber = scan.nextInt();
-        int seatsAvailable = scan.nextInt();
-
-    }
 }
 
 public class TicketBooking {
     public static void main(String[] args) {
 
         Scanner scan = new Scanner(System.in);
+        User newUser = new User(scan);
 
     }
 }
-
