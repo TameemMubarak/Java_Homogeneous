@@ -46,7 +46,7 @@ class nammaBusYatra {
 
         showBuses();
        
-        System.out.println("To go back to MENU Enter 0.")
+        System.out.println("To go back to MENU Enter 0.");
         System.out.print("Select the Bus Number you wish to book (e.g., 1): ");
        
         try {

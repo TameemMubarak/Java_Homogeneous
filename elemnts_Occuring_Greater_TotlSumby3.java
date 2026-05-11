@@ -1,3 +1,5 @@
+import java.util.*;
+
 class Solution {
     // Function to find the majority elements in the array
     public List<Integer> findMajority(int[] nums) {

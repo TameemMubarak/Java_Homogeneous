@@ -1,6 +1,6 @@
 class Dumy{
-    public static void main(Strings[] args){\
-    int arr []=[0,1,2,1,0,2];
+    public static void main(String[] args){
+    int arr []={0,1,2,1,0,2};
                 int zero=0;
         int one=0;
         int two=0;
