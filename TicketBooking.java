@@ -1,11 +1,11 @@
 import java.util.*;
 import java.util.regex.Pattern;
 
-class nammaBusYatra {
+class NammaBusYatra {
     private static List<Bus> busList = new ArrayList<>();
     Scanner scan;
 
-    nammaBusYatra(Scanner scan) {
+    NammaBusYatra(Scanner scan) {
         this.scan = scan;
     }
 
@@ -313,10 +313,10 @@ class User {
 
 }
 
-class admin {
+class Admin {
     Scanner scan;
 
-    admin(User user) {
+    Admin(User user) {
         if (user.getRole().trim().equalsIgnoreCase("admin")) {
             System.out.println("good day admin want to modify/update bus data");
         } else {
@@ -331,7 +331,7 @@ public class TicketBooking {
         Scanner scan = new Scanner(System.in);
 
         // 1. Setup the System and User
-        nammaBusYatra system = new nammaBusYatra(scan);
+        NammaBusYatra system = new NammaBusYatra(scan);
         User currentUser = new User(scan);
 
         boolean exit = false;
