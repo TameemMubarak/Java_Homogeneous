@@ -1,9 +1,9 @@
 package main;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import model.User;
+import service.AuthService;
 import service.NammaBusYatra;
 
 public class TicketBooking {
@@ -12,72 +12,145 @@ public class TicketBooking {
 
         Scanner scan = new Scanner(System.in);
 
-        // SYSTEM INITIALIZATION
+        // SERVICES
+
+        AuthService authService =
+                new AuthService();
 
         NammaBusYatra system =
                 new NammaBusYatra(scan);
 
-        User currentUser =
-                new User(scan);
+        boolean applicationExit = false;
 
-        boolean exit = false;
-
-        while (!exit) {
+        while (!applicationExit) {
 
             System.out.println(
-                    "\n========= NAMMA YATRA MENU =========");
+                    "\n========= NAMMA YATRA =========");
 
             System.out.println(
-                    "1. View and Book a Bus");
+                    "1. Register");
 
             System.out.println(
-                    "2. [ADMIN] Register a New Bus");
+                    "2. Login");
 
             System.out.println(
-                    "3. Exit System");
+                    "3. Exit");
 
             System.out.print(
-                    "Please select an option: ");
+                    "Select Option: ");
 
             try {
 
-                int choice =
+                int authChoice =
                         Integer.parseInt(
                                 scan.nextLine());
 
-                switch (choice) {
+                switch (authChoice) {
 
                     case 1:
 
-                        system.startBookingFlow();
+                        authService.register(scan);
 
                         break;
 
                     case 2:
 
-                        system.createBus(currentUser);
+                        User currentUser =
+                                authService.login(scan);
+
+                        if (currentUser != null) {
+
+                            boolean logout = false;
+
+                            while (!logout) {
+
+                                System.out.println(
+                                        "\n========= NAMMA YATRA MENU =========");
+
+                                System.out.println(
+                                        "1. View and Book Bus");
+
+                                System.out.println(
+                                        "2. Register New Bus");
+
+                                System.out.println(
+                                        "3. View Profile");
+
+                                System.out.println(
+                                        "4. Logout");
+
+                                System.out.print(
+                                        "Select Option: ");
+
+                                try {
+
+                                    int menuChoice =
+                                            Integer.parseInt(
+                                                    scan.nextLine());
+
+                                    switch (menuChoice) {
+
+                                        case 1:
+
+                                            system.startBookingFlow();
+
+                                            break;
+
+                                        case 2:
+
+                                            system.createBus(currentUser);
+
+                                            break;
+
+                                        case 3:
+
+                                            currentUser.displayUserDetails();
+
+                                            break;
+
+                                        case 4:
+
+                                            authService.logout();
+
+                                            logout = true;
+
+                                            break;
+
+                                        default:
+
+                                            System.out.println(
+                                                    "[ERROR] Invalid menu option.");
+                                    }
+
+                                } catch (Exception e) {
+
+                                    System.out.println(
+                                            "[ERROR] Invalid input.");
+                                }
+                            }
+                        }
 
                         break;
 
                     case 3:
 
                         System.out.println(
-                                "Thank you for using Namma Yatra. Goodbye!");
+                                "\nThank you for using Namma Yatra.");
 
-                        exit = true;
+                        applicationExit = true;
 
                         break;
 
                     default:
 
                         System.out.println(
-                                "Invalid choice. Try again.");
+                                "[ERROR] Invalid option.");
                 }
 
             } catch (Exception e) {
 
                 System.out.println(
-                        "Error: Please enter a valid number.");
+                        "[ERROR] Please enter a valid number.");
             }
         }
 
