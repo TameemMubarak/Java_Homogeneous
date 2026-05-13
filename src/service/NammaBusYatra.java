@@ -35,7 +35,7 @@ public class NammaBusYatra {
 
         System.out.println("\n---------- NammaYatra Active Routes ----------");
         for (int i = 0; i < busList.size(); i++) {
-            System.out.println((i + 1) + ". " + busList.get(i).getName());
+            System.out.println((i + 1) + ". " + busList.get(i).getBusName());
         }
         System.out.println("-----------------------------------------------");
     }
@@ -70,8 +70,8 @@ public class NammaBusYatra {
     }
 
     private void processBooking(Bus bus) {
-        System.out.println("\n--- Booking Details for: " + bus.getName() + " ---");
-        bus.knowAvailableSeats();
+        System.out.println("\n--- Booking Details for: " + bus.getBusName() + " ---");
+        bus.displayAvailableSeats();
 
         System.out.print("How many seats would you like to book? ");
         try {
@@ -85,7 +85,7 @@ public class NammaBusYatra {
             }
 
             if (bus.bookSeat(count)) {
-                System.out.println("\n[SUMMARY] Successfully booked " + count + " seat(s) on " + bus.getName());
+                System.out.println("\n[SUMMARY] Successfully booked " + count + " seat(s) on " + bus.getBusName());
             }
 
         } catch (InputMismatchException e) {
