@@ -1,7 +1,7 @@
 package admin;
 
 import model.User;
-
+import java.util.*;
 public class Admin {
     Scanner scan;
 
