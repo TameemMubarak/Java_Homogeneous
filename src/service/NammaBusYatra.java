@@ -1,101 +1,270 @@
 package service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
+
 import model.Bus;
 import model.User;
+import service.BusService;
 
 public class NammaBusYatra {
-    private static List<Bus> busList = new ArrayList<>();
-    Scanner scan;
+
+    private static final List<Bus> busList =
+            new ArrayList<>();
+
+    private final Scanner scan;
+
+    // SERVICE OBJECT
+
+    private final BusService busService =
+            new BusService();
+
+    // CONSTRUCTOR
 
     public NammaBusYatra(Scanner scan) {
         this.scan = scan;
     }
 
-    // To create a bus and add to the avialbale bus
+    // CREATE BUS
+
     public void createBus(User user) {
-        // For user authorization
-        if (!user.getRole().equalsIgnoreCase("admin")) {
-            System.out.println("\n[DENIED] Access Restricted: Only admins can register new buses.");
+
+        if (!user.getRole().equals("ADMIN")) {
+
+            System.out.println(
+                    "\n[DENIED] Only ADMIN users can register buses.");
+
             return;
         }
-        // This calls your Bus constructor which already handles its own internal
-        // prompts
-        Bus newBus = new Bus(scan);
-        busList.add(newBus);
-        System.out.println("[SYSTEM] Bus added to NammaYatra fleet successfully.");
+
+        try {
+
+            System.out.println(
+                    "\n========== BUS REGISTRATION ==========");
+
+            // BUS NAME
+
+            System.out.print(
+                    "Enter Bus Name (Example: VmplToRct): ");
+
+            String busName =
+                    scan.nextLine().trim();
+
+            // VEHICLE NUMBER
+
+            System.out.print(
+                    "Enter Vehicle Number (Example: KA 01 AB 1234): ");
+
+            String vehicleNumber =
+                    scan.nextLine().trim().toUpperCase();
+
+            // ENGINE CAPACITY
+
+            System.out.print(
+                    "Enter Engine Capacity: ");
+
+            int engineCapacity =
+                    Integer.parseInt(
+                            scan.nextLine().trim());
+
+            // TICKET PRICE
+
+            System.out.print(
+                    "Enter Ticket Price: ");
+
+            int ticketPrice =
+                    Integer.parseInt(
+                            scan.nextLine().trim());
+
+            // TOTAL SEATS
+
+            System.out.print(
+                    "Enter Total Seats: ");
+
+            int totalSeats =
+                    Integer.parseInt(
+                            scan.nextLine().trim());
+
+            // CREATE BUS OBJECT
+
+            Bus newBus = new Bus(
+                    java.util.UUID.randomUUID()
+                            .toString()
+                            .substring(0, 8)
+                            .toUpperCase(),
+
+                    busName,
+
+                    vehicleNumber,
+
+                    engineCapacity,
+
+                    ticketPrice,
+
+                    totalSeats);
+
+            busList.add(newBus);
+
+            System.out.println(
+                    "\n[SUCCESS] Bus added successfully.");
+
+        } catch (NumberFormatException e) {
+
+            System.out.println(
+                    "[ERROR] Invalid numerical input.");
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "[ERROR] Bus registration failed.");
+        }
     }
 
-    // To display the buses available to travel.
+    // DISPLAY BUSES
+
     public void showBuses() {
+
         if (busList.isEmpty()) {
-            System.out.println("\n[INFO] No buses are currently scheduled.");
+
+            System.out.println(
+                    "\n[INFO] No buses currently available.");
+
             return;
         }
 
-        System.out.println("\n---------- NammaYatra Active Routes ----------");
+        System.out.println(
+                "\n========== ACTIVE ROUTES ==========");
+
         for (int i = 0; i < busList.size(); i++) {
-            System.out.println((i + 1) + ". " + busList.get(i).getBusName());
+
+            Bus currentBus = busList.get(i);
+
+            System.out.println(
+                    (i + 1)
+                            + ". "
+                            + currentBus.getBusName()
+                            + " | "
+                            + currentBus.getVehicleNumber());
         }
-        System.out.println("-----------------------------------------------");
+
+        System.out.println(
+                "===================================");
     }
 
-    // the method for booking ticket
+    // BOOKING FLOW
+
     public void startBookingFlow() {
+
         if (busList.isEmpty()) {
-            System.out.println("\n[ERROR] Cannot proceed. No buses available for booking.");
+
+            System.out.println(
+                    "\n[ERROR] No buses available for booking.");
+
             return;
         }
 
         showBuses();
-       
-        System.out.println("To go back to MENU Enter 0.");
-        System.out.print("Select the Bus Number you wish to book (e.g., 1): ");
-       
+
+        System.out.println(
+                "Enter 0 to return to menu.");
+
+        System.out.print(
+                "Select Bus Number: ");
+
         try {
-            int choice = scan.nextInt();
-            scan.nextLine(); // Clear buffer
-            int index = choice - 1;
-            if(index==-1)return;
-            else if (index >= 0 && index < busList.size()) {
-                Bus selectedBus = busList.get(index);
-                processBooking(selectedBus);
-            } else {
-                System.out.println("[ERROR] Invalid selection. Please pick a number from the list.");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("[ERROR] Please enter a valid numerical ID.");
-            scan.nextLine(); // Clear buffer
-        }
-    }
 
-    private void processBooking(Bus bus) {
-        System.out.println("\n--- Booking Details for: " + bus.getBusName() + " ---");
-        bus.displayAvailableSeats();
+            int choice =
+                    Integer.parseInt(
+                            scan.nextLine().trim());
 
-        System.out.print("How many seats would you like to book? ");
-        try {
-            int count = scan.nextInt();
-            scan.nextLine(); // Clear buffer
-
-            // Basic check before starting
-            if (count <= 0) {
-                System.out.println("[ERROR] Invalid number of seats.");
+            if (choice == 0) {
                 return;
             }
 
-            if (bus.bookSeat(count)) {
-                System.out.println("\n[SUMMARY] Successfully booked " + count + " seat(s) on " + bus.getBusName());
+            int index = choice - 1;
+
+            if (index < 0 || index >= busList.size()) {
+
+                System.out.println(
+                        "[ERROR] Invalid bus selection.");
+
+                return;
             }
 
-        } catch (InputMismatchException e) {
-            System.out.println("[ERROR] Please enter a numerical value for seat count.");
-            scan.nextLine();
+            Bus selectedBus =
+                    busList.get(index);
+
+            processBooking(selectedBus);
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "[ERROR] Please enter a valid number.");
         }
     }
+
+    // PROCESS BOOKING
+
+    private void processBooking(Bus bus) {
+
+        System.out.println(
+                "\n========== BOOKING DETAILS ==========");
+
+        System.out.println(
+                "Bus Name : "
+                        + bus.getBusName());
+
+        bus.displayAvailableSeats();
+
+        System.out.println(
+                "=====================================");
+
+        try {
+
+            System.out.print(
+                    "Enter Number Of Seats: ");
+
+            int requestedSeats =
+                    Integer.parseInt(
+                            scan.nextLine().trim());
+
+            if (requestedSeats <= 0) {
+
+                System.out.println(
+                        "[ERROR] Seat count must be greater than zero.");
+
+                return;
+            }
+
+            boolean bookingStatus =
+                    busService.bookSeat(
+                            bus,
+                            requestedSeats,
+                            scan);
+
+            if (bookingStatus) {
+
+                System.out.println(
+                        "\n[SUMMARY] Booking completed successfully.");
+
+            } else {
+
+                System.out.println(
+                        "\n[SUMMARY] Booking failed.");
+            }
+
+        } catch (NumberFormatException e) {
+
+            System.out.println(
+                    "[ERROR] Invalid seat count input.");
+        }
+    }
+
+    // GETTER
 
     public static List<Bus> getBusList() {
         return busList;
     }
-
 }
